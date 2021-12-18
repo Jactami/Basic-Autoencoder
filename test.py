@@ -1,36 +1,36 @@
-from model import *
-from tensorflow import keras
+from model import Model
+from mninst_dataset import MnistDataset
 import matplotlib.pyplot as plt
 
 
 def test():
-    # load data + normalize values
-    data = keras.datasets.mnist
-    (x_train, _), (x_test, _) = data.load_data()
-    x_train = x_train / 255.0
-    x_test = x_test / 255.0
+    # load image data
+    data = MnistDataset()
+    x_train = data.get_test_data()
+    x_test = data.get_test_data(shuffle=True)
 
+    # load or train model
     model = Model()
     if model.model_exists():
         model.load()
     else:
         model.build()
-        model.train(x_train, epochs=5)
+        model.train(x_train, epochs=200)
         model.save()
 
-    # encoded image
-    encoded = model.encode([x_test[0].reshape(-1, 28, 28, 1)])[0]
+    # test autoencoder
+    sample_size = min(len(x_test), 5)
+    predictions = model.autoencode(x_test[:sample_size])
 
-    # decoded image
-    decoded = model.autoencode([x_test[0].reshape(-1, 28, 28, 1)])[0]
+    fig = plt.figure()
+    for i in range(sample_size):
+        # original images
+        fig.add_subplot(2, sample_size, i + 1)
+        plt.imshow(x_test[i], cmap="gray")
+        # decoded images
+        fig.add_subplot(2, sample_size, i + sample_size + 1)
+        plt.imshow(predictions[i], cmap="gray")
 
-    fig = plt.figure(figsize=(8, 8))
-    fig.add_subplot(1, 3, 1)
-    plt.imshow(x_test[0], cmap="gray")
-    fig.add_subplot(1, 3, 2)
-    plt.imshow(encoded.reshape((8, 4)), cmap="gray")
-    fig.add_subplot(1, 3, 3)
-    plt.imshow(decoded, cmap="gray")
     plt.show()
 
 

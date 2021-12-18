@@ -26,9 +26,9 @@ class Model:
         self.encoder = keras.Sequential(
             [
                 layers.Flatten(input_shape=[DIM, DIM, 1]),
-                layers.Dense(128, activation="relu"),
-                layers.Dense(64, activation="relu"),
-                layers.Dense(32, activation="relu"),
+                layers.Dense(128, activation="leaky_relu"),
+                layers.Dense(64, activation="leaky_relu"),
+                layers.Dense(32, activation="sigmoid"),
             ],
             name="encoder",
         )
@@ -36,8 +36,8 @@ class Model:
         # decoder
         self.decoder = keras.Sequential(
             [
-                layers.Dense(64, activation="relu", input_shape=[32]),
-                layers.Dense(128, activation="relu"),
+                layers.Dense(64, activation="leaky_relu", input_shape=[32]),
+                layers.Dense(128, activation="leaky_relu"),
                 layers.Dense(DIM * DIM, activation="sigmoid"),
                 layers.Reshape([28, 28, 1]),
             ],

@@ -10,15 +10,16 @@ from consts import DIM
 
 class Model:
     def __init__(self):
-        self.encoder_path = "models/encoder/"
-        self.decoder_path = "models/decoder/"
-        self.autoencoder_path = "models/autoencoder/"
+        self.encoder_path = "encoder/"
+        self.decoder_path = "decoder/"
+        self.autoencoder_path = "autoencoder/"
 
-    def model_exists(self):
+    def model_exists(self, path):
+        print(Path(path) / self.autoencoder_path / "saved_model.pb")
         return (
-            Path(self.encoder_path + "saved_model.pb").exists()
-            and Path(self.decoder_path + "saved_model.pb").exists()
-            and Path(self.autoencoder_path + "saved_model.pb").exists()
+            (Path(path) / self.autoencoder_path / "saved_model.pb").exists()
+            and (Path(path) / self.encoder_path / "saved_model.pb").exists()
+            and (Path(path) / self.decoder_path / "saved_model.pb").exists()
         )
 
     def build(self, lr=0.001):
@@ -59,20 +60,20 @@ class Model:
         print(self.encoder.summary())
         print(self.decoder.summary())
 
-    def train(self, x_train, epochs=100, batch_size=32, shuffle=True):
+    def train(self, x_train, epochs=10, batch_size=32, shuffle=True):
         self.autoencoder.fit(
             x_train, x_train, batch_size=batch_size, epochs=epochs, shuffle=shuffle
         )
 
-    def save(self):
-        self.encoder.save(self.encoder_path)
-        self.decoder.save(self.decoder_path)
-        self.autoencoder.save(self.autoencoder_path)
+    def save(self, path):
+        self.encoder.save(Path(path) / self.encoder_path)
+        self.decoder.save(Path(path) / self.decoder_path)
+        self.autoencoder.save(Path(path) / self.autoencoder_path)
 
-    def load(self):
-        self.encoder = keras.models.load_model(self.encoder_path)
-        self.decoder = keras.models.load_model(self.decoder_path)
-        self.autoencoder = keras.models.load_model(self.autoencoder_path)
+    def load(self, path):
+        self.encoder = keras.models.load_model(Path(path) / self.encoder_path)
+        self.decoder = keras.models.load_model(Path(path) / self.decoder_path)
+        self.autoencoder = keras.models.load_model(Path(path) / self.autoencoder_path)
 
     def encode(self, data):
         return self.encoder.predict(data)
@@ -82,3 +83,9 @@ class Model:
 
     def autoencode(self, data):
         return self.autoencoder.predict(data)
+
+    def encoder_dims(self):
+        return self.encoder.input_shape, self.encoder.output_shape
+
+    def decoder_dims(self):
+        return self.decoder.input_shape, self.decoder.output_shape

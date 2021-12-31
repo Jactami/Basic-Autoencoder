@@ -61,14 +61,20 @@ class Model:
         print(self.decoder.summary())
 
     def train(self, x_train, epochs=10, batch_size=32, shuffle=True):
+        self._assert_model()
+
         self.autoencoder.fit(
             x_train, x_train, batch_size=batch_size, epochs=epochs, shuffle=shuffle
         )
 
     def eval(self, x_test, batch_size=32):
+        self._assert_model()
+
         self.autoencoder.evaluate(x_test, x_test, batch_size)
 
     def save(self, path):
+        self._assert_model()
+
         self.encoder.save(Path(path) / self.encoder_path)
         self.decoder.save(Path(path) / self.decoder_path)
         self.autoencoder.save(Path(path) / self.autoencoder_path)
@@ -79,16 +85,33 @@ class Model:
         self.autoencoder = keras.models.load_model(Path(path) / self.autoencoder_path)
 
     def encode(self, data):
+        self._assert_model()
+
         return self.encoder.predict(data)
 
     def decode(self, data):
+        self._assert_model()
+
         return self.decoder.predict(data)
 
     def autoencode(self, data):
+        self._assert_model()
+
         return self.autoencoder.predict(data)
 
     def encoder_dims(self):
+        self._assert_model()
+
         return self.encoder.input_shape, self.encoder.output_shape
 
     def decoder_dims(self):
+        self._assert_model()
+
         return self.decoder.input_shape, self.decoder.output_shape
+
+    def _assert_model(self):
+        assert (
+            hasattr(self, "autoencoder")
+            and hasattr(self, "encoder")
+            and hasattr(self, "decoder")
+        ), "Error: model not initialized"

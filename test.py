@@ -4,22 +4,27 @@ import matplotlib.pyplot as plt
 
 
 def test():
+    test_path = "test"
+    label = None
+
     # load image data
     data = MnistDataset()
-    x_train = data.get_test_data()
-    x_test = data.get_test_data(shuffle=True)
 
     # load or train model
     model = Model()
-    if model.model_exists():
-        model.load()
+    if model.model_exists(test_path):
+        model.load(test_path)
     else:
         model.build()
-        model.train(x_train, epochs=200)
-        model.save()
+        x_train = data.get_test_data(label)
+        model.train(x_train, epochs=50)
+        model.save(test_path)
 
     # test autoencoder
-    sample_size = min(len(x_test), 5)
+    x_test = data.get_test_data(label, shuffle=True)
+    model.eval(x_test)
+
+    sample_size = min(len(x_test), 10)
     predictions = model.autoencode(x_test[:sample_size])
 
     fig = plt.figure()

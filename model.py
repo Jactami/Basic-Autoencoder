@@ -65,6 +65,9 @@ class Model:
             x_train, x_train, batch_size=batch_size, epochs=epochs, shuffle=shuffle
         )
 
+    def eval(self, x_test, batch_size=32):
+        self.autoencoder.evaluate(x_test, x_test, batch_size)
+
     def save(self, path):
         self.encoder.save(Path(path) / self.encoder_path)
         self.decoder.save(Path(path) / self.decoder_path)
